@@ -1,7 +1,8 @@
 # libraries for
 import cv2           # computer vision
 import numpy as np   # matrix operations
-import dlib          # machine learning face detection
+import dlib           # machine learning face detection
+from math import hypot # to calculate the distance
 
 
 # 0 : access default camera
@@ -12,6 +13,8 @@ detector = dlib.get_frontal_face_detector()
 
 # predict landmarks : dat file face landmarks
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+font = cv2.FONT_HERSHEY_PLAIN
 
 # infinite loop till esc is pressed 
 while True:
@@ -50,6 +53,16 @@ while True:
        # RE : horizontal & vertical line 
        RE_ver_line =  cv2.line(frame,RE1,RE2,(225,0,0),2)
        RE_hor_line =  cv2.line(frame,RE3,RE4,(225,0,0),2)
+       
+       # length of line
+       RE_ver_line_length = hypot((RE1[0]-RE2[0]),(RE1[1]-RE2[1]))
+       RE_hor_line_length = hypot((RE3[0]-RE4[0]),(RE3[1]-RE4[1]))
+      
+       
+       ratio = RE_hor_line_length/RE_ver_line_length
+       
+       if ratio > 5 :
+          cv2.putText(frame,"BLINKING",(50,150),font,3,(225,0,0))
        
        # left eye point pairs from top to down
 
