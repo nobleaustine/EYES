@@ -1,9 +1,9 @@
 # libraries for
 import cv2           # computer vision
 import numpy as np   # matrix operations
-import dlib           # machine learning face detection
+import dlib           # machine learning face detectioncd path\to\dist
 from math import hypot # to calculate the distance
-
+import time
 
 # 0 : access default camera
 camera = cv2.VideoCapture(0)
@@ -12,13 +12,14 @@ camera = cv2.VideoCapture(0)
 detector = dlib.get_frontal_face_detector()
 
 # predict landmarks : dat file face landmarks
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor('C:\\NOBLEAUSTINE\\GitWorld\\EYES\\shape_predictor_68_face_landmarks.dat')
 
 font = cv2.FONT_HERSHEY_PLAIN
-
+count = 0
+time_taken = .00001
 # infinite loop till esc is pressed 
 while True:
-    
+    start_time = time.time()   
     # camera.read() return two values boolean for successful capture and captureed frame
     # here boolean is ignored by _
     _,frame = camera.read()
@@ -32,7 +33,8 @@ while True:
        # x,y = face.left(),face.top()
        # x1,y1 = face.right(),face.bottom()
        # cv2.rectangle(frame,(x,y),(x1,y1),(0,225,0),2)
-
+       
+       x,y = face.right(),face.top()
        # detected land marks as in dat file
        landmarks = predictor(gray,face)
        
@@ -58,11 +60,17 @@ while True:
        RE_ver_line_length = hypot((RE1[0]-RE2[0]),(RE1[1]-RE2[1]))
        RE_hor_line_length = hypot((RE3[0]-RE4[0]),(RE3[1]-RE4[1]))
       
-       
        ratio = RE_hor_line_length/RE_ver_line_length
-       
        if ratio > 5 :
-          cv2.putText(frame,"BLINKING",(50,150),font,3,(225,0,0))
+         #  cv2.putText(frame,"BLINKING",(50,150),font,3,(225,0,0))
+          count += 1
+        
+       
+       blinks_per_minute =round((count/(time_taken))*60,3)
+       
+       text = f"{blinks_per_minute} {count}"
+       cv2.putText(frame, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (100,0, 0), 2)
+       
        
        # left eye point pairs from top to down
 
@@ -82,12 +90,20 @@ while True:
        # LE : horizontal & vertical line 
        LE_ver_line =  cv2.line(frame,LE1,LE2,(225,0,0),2)
        LE_hor_line =  cv2.line(frame,LE3,LE4,(225,0,0),2)
+
+    
+
+    
        
     cv2.imshow("EYES",frame) # displaying captured frame
     key = cv2.waitKey(1)     # waits for a key press
-
-    if key == 27:
-       break                 # if key == 27 => esc break loop
+   
+    if key == ord('q') or key == 27:  # 'q' key or Esc key
+            break
+   #  if key == 27:
+   #     break                 # if key == 27 => esc break loop
+    end_time = time.time() 
+    time_taken = time_taken + end_time - start_time
 
 
 camera.release()             # to release the camera
